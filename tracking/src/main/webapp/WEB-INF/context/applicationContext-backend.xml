@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                            http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+   	<!-- For getting Autowired to work. -->
+	<context:annotation-config />
+	
+	<!-- For getting annotation based spring beans to work. -->
+	<context:component-scan base-package="fi.lauber.posttracking"/>
+	
+	<!-- For enabling annotation based syntax for AOP aspects. -->
+	<aop:aspectj-autoproxy/>
+
+	<!-- The stuff that the backend needs goes here. -->
+    <aop:config>
+      <aop:advisor
+        pointcut="execution(* fi.lauber.posttracking.util.TrackingLogic.*(..))"
+        advice-ref="trackingLogicTxAdvice"/>
+    </aop:config>
+    
+    <tx:advice id="trackingLogicTxAdvice" transaction-manager="transactionManager">
+      <tx:attributes>
+      	<tx:method name="getByTrackingCode" read-only="true" isolation="READ_COMMITTED" propagation="REQUIRED"
+            rollback-for="java.lang.Exception" timeout="20"/>
+      	<tx:method name="storeNewTrackingObject" read-only="false" isolation="READ_COMMITTED" propagation="REQUIRED"
+            rollback-for="java.lang.Exception" timeout="20"/>
+      	<tx:method name="getAllOpenObjects" read-only="true" isolation="READ_COMMITTED" propagation="REQUIRED"
+            rollback-for="java.lang.Exception" timeout="20"/>
+      	<tx:method name="updateTrackingObject" read-only="false" isolation="READ_COMMITTED" propagation="REQUIRED"
+            rollback-for="java.lang.Exception" timeout="20"/>
+      </tx:attributes>
+    </tx:advice>
+    
+</beans>
